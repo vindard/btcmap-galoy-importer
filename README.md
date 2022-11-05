@@ -35,3 +35,9 @@ This tool is still WIP, and this README will be updated with setup & run instruc
 
 - [ ] Manually review fetched & compared data for consistency/accuracy
       (inside `marker-and-nearby-with-compare.json`)
+
+### Open TODOs
+
+- [ ] Clean up changeset methods to be more generic
+- [ ] Figure out JSON shape for xml data
+- [ ] Map node marker data to xml changeset payloads via xml-js
