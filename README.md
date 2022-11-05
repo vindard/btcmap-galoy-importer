@@ -6,9 +6,33 @@ This will eventually either be runnable either as a one-off exported or on a cro
 
 No special Galoy instance credentials are needed to run this since reading the merchants map list is an unauthenticated query.
 
+## Running the project
+
+Note, the project is still very much WIP (see below). These instructions are for playing with the work done so far.
+
+- Add local `.env` file with your OSM creds
+
+  ```bash
+  export OSM_USERNAME="<your-username>"
+  export OSM_PASSWORD="<your-password>"
+  ```
+
+- Install dependencies
+
+  ```bash
+  yarn install
+  ```
+
+- Edit the lines at the end of `index.ts` to choose the demo you'd like to run
+
+- Run the selected demo
+  ```bash
+  yarn start
+  ```
+
 ## WIP Status
 
-This tool is still WIP, and this README will be updated with setup & run instructions once the tool is ready to be used/tested.
+This tool is still very much WIP. The below points are the progress and open TODOs so far to get it to a completed first version stage.
 
 ### Open questions
 
