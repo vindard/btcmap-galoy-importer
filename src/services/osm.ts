@@ -24,7 +24,7 @@ const authHeader = ({
   return { Authorization: `Basic ${b64Creds}` }
 }
 
-const { username, password } = process.env
+const { OSM_USERNAME: username, OSM_PASSWORD: password } = process.env
 const defaultHeaders = {
   Accept: "application/json"
 }
