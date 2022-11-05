@@ -1,9 +1,12 @@
+import fs from "fs"
+
 import getNearbyNodesForNode from "./src/get-nearby-nodes-for-node"
 import {
   fetchAndProcessGaloyAndOsmNodes,
   fetchGaloyAndOsmNodes,
 } from "./src/fetch-and-process-galoy-nodes"
 import assignComparesToNearbyFromFile from "./src/process-fetched-galoy-and-osm-nodes"
+import OpenStreetMap from "./src/services/osm"
 
 const osmDemo = async () => {
   // This function gives a simple demo of fetching an OSM node by its
@@ -21,6 +24,7 @@ const osmDemo = async () => {
 }
 
 const main = async (demo: string) => {
+  let body: string
   switch (demo) {
     case "osm":
       console.log("Running OSM demo...")
@@ -42,11 +46,28 @@ const main = async (demo: string) => {
       })
       break
 
+    case "open-changeset":
+      body = fs.readFileSync("./open-changeset.xml", "utf8")
+      await OpenStreetMap().openChangeset(body)
+      break
+
+    case "update-changeset":
+      body = fs.readFileSync("./pana-change.xml", "utf8")
+      await OpenStreetMap().updateChangeset({ id: "128525647", body })
+      break
+
+    case "close-changeset":
+      await OpenStreetMap().closeChangeset("128525647")
+      break
+
     default:
       console.log("No valid demo selected")
   }
 }
 
-// main("osm")
+// main("osm");
 // main("assign-compares-demo")
-main("nearby-markers-to-file")
+// main("nearby-markers-to-file");
+// main("open-changeset");
+// main("update-changeset");
+main("close-changeset")
