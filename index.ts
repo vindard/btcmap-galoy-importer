@@ -25,6 +25,11 @@ const osmDemo = async () => {
 
 const main = async (demo: string) => {
   let body: string
+  let changesetId
+
+  const osm = await OpenStreetMap()
+  if (osm instanceof Error) throw osm
+
   switch (demo) {
     case "osm":
       console.log("Running OSM demo...")
@@ -47,17 +52,20 @@ const main = async (demo: string) => {
       break
 
     case "open-changeset":
-      body = fs.readFileSync("./open-changeset.xml", "utf8")
-      await OpenStreetMap().openChangeset(body)
+      changesetId = await osm.openChangeset({
+        comment: "Changing the bitcoin_bank tag again",
+      })
+      console.log({ changesetId })
       break
 
     case "update-changeset":
-      body = fs.readFileSync("./pana-change.xml", "utf8")
-      await OpenStreetMap().updateChangeset({ id: "128525647", body })
+      body = fs.readFileSync("./.vscode/pana-change.xml", "utf8")
+      await osm.updateChangeset({ id: "128525647", body })
       break
 
     case "close-changeset":
-      await OpenStreetMap().closeChangeset("128525647")
+      changesetId = "128525647"
+      await osm.closeChangeset(changesetId)
       break
 
     default:
@@ -68,6 +76,6 @@ const main = async (demo: string) => {
 // main("osm");
 // main("assign-compares-demo")
 // main("nearby-markers-to-file");
-// main("open-changeset");
+main("open-changeset")
 // main("update-changeset");
-main("close-changeset")
+// main("close-changeset")

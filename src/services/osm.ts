@@ -1,4 +1,7 @@
+import convert from "xml-js"
 import axios, { AxiosError, AxiosResponse } from "axios"
+
+const CREATED_BY = "Galoy Exporter"
 
 // API URL & HEADERS
 // =====
@@ -132,16 +135,65 @@ const handleAxiosError = (err: AxiosError): void => {
 // OSM LOGIC
 // =====
 
-const OpenStreetMap = () => {
-  const getBox = async (coords: { min: CoOrd; max: CoOrd }) => {
-    const {
-      min: { lat: bottom, lon: left },
-      max: { lat: top, lon: right },
-    } = coords
-    const endpoint = `/map?bbox=${left},${bottom},${right},${top}`
-
-    return safeGet(endpoint)
+const expandObjToArray = (args: { [key: string]: string }) => {
+  const res: { _attributes: { k: string; v: string } }[] = []
+  for (const key of Object.keys(args)) {
+    res.push({
+      _attributes: {
+        k: key,
+        v: args[key],
+      },
+    })
   }
+
+  return res
+}
+
+const openChangesetXml = ({
+  user,
+  uid,
+  comment,
+  createdBy = CREATED_BY,
+}: {
+  user: string
+  uid: string
+  comment: string
+  createdBy?: string
+}) => {
+  const tag = expandObjToArray({ user, uid, comment, created_by: createdBy })
+
+  const jsonForXml = JSON.stringify({
+    osm: {
+      _attributes: { version: "0.6" },
+      changeset: { tag },
+    },
+  })
+
+  return convert.json2xml(jsonForXml, {
+    compact: true,
+    ignoreComment: true,
+    spaces: 4,
+  })
+}
+
+const OpenStreetMap = async () => {
+  const userDetails = async () => {
+    const endpoint = "/user/details"
+
+    const resp = await safeGetWithAuth(endpoint)
+    if (resp instanceof Error) {
+      handleAxiosError(resp)
+      return resp
+    }
+
+    return { status: resp.status, user: resp.data?.user }
+  }
+  const userDetailsResult = await userDetails()
+  if (userDetailsResult instanceof Error) return userDetailsResult
+  const { user } = userDetailsResult
+  const loggedIn = !!user
+  const username = loggedIn ? user?.display_name : undefined
+  const uid = loggedIn ? user?.id : undefined
 
   const checkPermissions = async () => {
     const endpoint = "/permissions"
@@ -152,6 +204,16 @@ const OpenStreetMap = () => {
     console.log(Object.keys(resp))
     console.log(resp.data)
     console.log("============\n")
+  }
+
+  const getBox = async (coords: { min: CoOrd; max: CoOrd }) => {
+    const {
+      min: { lat: bottom, lon: left },
+      max: { lat: top, lon: right },
+    } = coords
+    const endpoint = `/map?bbox=${left},${bottom},${right},${top}`
+
+    return safeGet(endpoint)
   }
 
   const fetchNearbyNodes = async ({
@@ -197,10 +259,16 @@ const OpenStreetMap = () => {
     return resp.data
   }
 
-  const openChangeset = async (body: string): Promise<string | Error> => {
+  const openChangeset = async (args: { comment: string }): Promise<string | Error> => {
     const endpoint = `/changeset/create`
+    if (!(loggedIn && username && uid)) {
+      return new Error("Not authenticated for method")
+    }
 
-    const resp = await safePutWithAuth({ endpoint, body })
+    const resp = await safePutWithAuth({
+      endpoint,
+      body: openChangesetXml({ ...args, user: username, uid }),
+    })
     if (resp instanceof Error) {
       handleAxiosError(resp)
       return resp
@@ -236,6 +304,10 @@ const OpenStreetMap = () => {
   }
 
   return {
+    loggedIn,
+    username,
+    uid,
+
     checkPermissions,
     fetchNode,
     fetchNearbyNodes,

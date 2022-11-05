@@ -1,8 +1,9 @@
 import OpenStreetMap from "./services/osm"
 
-const osm = OpenStreetMap()
-
 const getNearbyNodesForNode = async (nodeId: string): Promise<OsmRawNode[] | Error> => {
+  const osm = await OpenStreetMap()
+  if (osm instanceof Error) return osm
+
   const node = await osm.fetchNode(nodeId)
   if (node instanceof Error) return node
 
