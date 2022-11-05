@@ -34,6 +34,18 @@ const defaultHeadersWithAuth = {
   ...authHeader({ username, password })
 }
 
+const putHeaders = {
+  ...defaultHeaders,
+  ["Content-type"]: "text/xml",
+}
+const putHeadersWithAuth = {
+  ...putHeaders,
+  ...authHeader({ username, password }),
+}
+
+const postHeaders = putHeaders
+const postHeadersWithAuth = putHeadersWithAuth
+
 // TYPES, CONSTANTS & HELPERS
 // =====
 
@@ -61,6 +73,40 @@ const safeGetWithAuth = async (
   try {
     const resp = await axios.get(OSM_URL + endpoint, {
       headers: defaultHeadersWithAuth,
+    })
+    return resp
+  } catch (err) {
+    return err as AxiosError
+  }
+}
+
+const safePutWithAuth = async ({
+  endpoint,
+  body,
+}: {
+  endpoint: string
+  body: string
+}): Promise<AxiosResponse<any, any> | AxiosError> => {
+  try {
+    const resp = await axios.put(OSM_URL + endpoint, body, {
+      headers: putHeadersWithAuth,
+    })
+    return resp
+  } catch (err) {
+    return err as AxiosError
+  }
+}
+
+const safePostWithAuth = async ({
+  endpoint,
+  body,
+}: {
+  endpoint: string
+  body: string
+}): Promise<AxiosResponse<any, any> | AxiosError> => {
+  try {
+    const resp = await axios.post(OSM_URL + endpoint, body, {
+      headers: postHeadersWithAuth,
     })
     return resp
   } catch (err) {
@@ -143,10 +189,51 @@ const OpenStreetMap = () => {
     return resp.data
   }
 
+  const openChangeset = async (body: string): Promise<string | Error> => {
+    const endpoint = `/changeset/create`
+
+    const resp = await safePutWithAuth({ endpoint, body })
+    if (resp instanceof Error) {
+      handleAxiosError(resp)
+      return resp
+    }
+
+    const changesetId = resp.data
+
+    return changesetId
+  }
+
+  const updateChangeset = async ({ id, body }: { id: string; body: string }) => {
+    const endpoint = `/changeset/${id}/upload`
+
+    const resp = await safePostWithAuth({ endpoint, body })
+    if (resp instanceof Error) {
+      handleAxiosError(resp)
+      return resp
+    }
+
+    return resp.data
+  }
+
+  const closeChangeset = async (id: string) => {
+    const endpoint = `/changeset/${id}/close`
+
+    const resp = await safePutWithAuth({ endpoint, body: "" })
+    if (resp instanceof Error) {
+      handleAxiosError(resp)
+      return resp
+    }
+
+    return resp.status
+  }
+
   return {
     checkPermissions,
     fetchNode,
     fetchNearbyNodes,
+    openChangeset,
+    updateChangeset,
+    closeChangeset,
   }
 }
 
