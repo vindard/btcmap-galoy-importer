@@ -27,11 +27,11 @@ const authHeader = ({
 
 const { OSM_USERNAME: username, OSM_PASSWORD: password } = process.env
 const defaultHeaders = {
-  Accept: "application/json"
+  Accept: "application/json",
 }
 const defaultHeadersWithAuth = {
   ...defaultHeaders,
-  ...authHeader({ username, password })
+  ...authHeader({ username, password }),
 }
 
 const putHeaders = {
@@ -154,7 +154,13 @@ const OpenStreetMap = () => {
     console.log("============\n")
   }
 
-  const fetchNearbyNodes = async ({ coord, boxRadius = NEARBY_NODES_RADIUS }: { coord: CoOrd; boxRadius?: number }): Promise<OsmRawNode[] | Error> => {
+  const fetchNearbyNodes = async ({
+    coord,
+    boxRadius = NEARBY_NODES_RADIUS,
+  }: {
+    coord: CoOrd
+    boxRadius?: number
+  }): Promise<OsmRawNode[] | Error> => {
     const { lat, lon } = coord
     const min = coordRound({ lat: lat - boxRadius, lon: lon - boxRadius })
     const max = coordRound({ lat: lat + boxRadius, lon: lon + boxRadius })
@@ -174,7 +180,9 @@ const OpenStreetMap = () => {
     const filteredElements = resp.data.elements.filter(
       (node: OsmRawNode) => node.type === "node" && node.tags && !node.tags.highway,
     )
-    const insideFilteredElems = filteredElements.filter((node: OsmRawNode) => inside(node))
+    const insideFilteredElems = filteredElements.filter((node: OsmRawNode) =>
+      inside(node),
+    )
     // const outsideFilteredElems = filteredElements.filter((node: OsmNode) => !inside(node))
 
     return insideFilteredElems

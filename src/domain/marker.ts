@@ -18,9 +18,9 @@ export const addComparesToMarker = (marker: Marker): MarkerWithCompare => {
     for (const { item, score, refIndex: i } of result) {
       const node = {
         ...nearbyNodes[i],
-        compare: { score, item }
+        compare: { score, item },
       }
-      if (score && (score <= COMPARE_THRESHOLD)) {
+      if (score && score <= COMPARE_THRESHOLD) {
         updatedNearbyNodes.push(node)
       } else {
         skippedNearbyNodes.push(node)
@@ -34,6 +34,6 @@ export const addComparesToMarker = (marker: Marker): MarkerWithCompare => {
     ...markerWithoutNearby,
     matchedNearbyNodes: updatedNearbyNodes,
     skippedNearbyNodes,
-    ...((inconsistent) ? { inconsistent } : {})
+    ...(inconsistent ? { inconsistent } : {}),
   }
 }

@@ -6,10 +6,16 @@ import { addComparesToMarker } from "./domain/marker"
 import getMapMarkers from "./get-map-markers"
 import getNearbyNodesForCoOrd from "./get-nearby-nodes-for-coord"
 
-export const fetchAndProcessGaloyAndOsmNodes = async ({ path, persist = true }: { path: string, persist?: boolean }): Promise<MarkerWithCompare[]> => {
+export const fetchAndProcessGaloyAndOsmNodes = async ({
+  path,
+  persist = true,
+}: {
+  path: string
+  persist?: boolean
+}): Promise<MarkerWithCompare[]> => {
   let persistedMarkers = []
   try {
-    const rawJson = fs.readFileSync(path, 'utf8')
+    const rawJson = fs.readFileSync(path, "utf8")
     persistedMarkers = JSON.parse(rawJson)
   } catch (err) {
     // do nothing, assume file empty or doesn't exist
@@ -41,34 +47,40 @@ export const fetchAndProcessGaloyAndOsmNodes = async ({ path, persist = true }: 
     const markerWithCompares = addComparesToMarker({ ...marker, nearbyNodes })
     console.log(
       `Marker at index ${i}, '${nearbyNodes.length}' nearby nodes sorted into ` +
-      `'${markerWithCompares.matchedNearbyNodes.length}' matches and ` +
-      `'${markerWithCompares.skippedNearbyNodes.length}' skips`
+        `'${markerWithCompares.matchedNearbyNodes.length}' matches and ` +
+        `'${markerWithCompares.skippedNearbyNodes.length}' skips`,
     )
 
     updatedMapMarkers.push(markerWithCompares)
 
     if (persist) {
       // Write mapMarkers to disk
-      const data = JSON.stringify(updatedMapMarkers, null, 2);
+      const data = JSON.stringify(updatedMapMarkers, null, 2)
       fs.writeFileSync(path, data)
-      console.log(`Data written to: ${path}`);
+      console.log(`Data written to: ${path}`)
     }
   }
 
   if (persist) {
     // Final write mapMarkers to disk
-    const data = JSON.stringify(updatedMapMarkers, null, 2);
+    const data = JSON.stringify(updatedMapMarkers, null, 2)
     fs.writeFileSync(path, data)
-    console.log(`Final data written to: ${path}`);
+    console.log(`Final data written to: ${path}`)
   }
 
   return updatedMapMarkers
 }
 
-export const fetchGaloyAndOsmNodes = async ({ path, persist = true }: { path: string, persist?: boolean }): Promise<Marker[]> => {
+export const fetchGaloyAndOsmNodes = async ({
+  path,
+  persist = true,
+}: {
+  path: string
+  persist?: boolean
+}): Promise<Marker[]> => {
   let persistedMarkers = []
   try {
-    const rawJson = fs.readFileSync(path, 'utf8')
+    const rawJson = fs.readFileSync(path, "utf8")
     persistedMarkers = JSON.parse(rawJson)
   } catch (err) {
     // do nothing, assume file empty or doesn't exist
@@ -98,25 +110,23 @@ export const fetchGaloyAndOsmNodes = async ({ path, persist = true }: { path: st
     const nearbyNodes = await getNearbyNodesForCoOrd(coord)
     if (nearbyNodes instanceof Error) continue
 
-    console.log(
-      `Marker at index ${i}, '${nearbyNodes.length}' nearby nodes`
-    )
+    console.log(`Marker at index ${i}, '${nearbyNodes.length}' nearby nodes`)
 
     updatedMapMarkers.push({ ...marker, nearbyNodes })
 
     if (persist) {
       // Write mapMarkers to disk
-      const data = JSON.stringify(updatedMapMarkers, null, 2);
+      const data = JSON.stringify(updatedMapMarkers, null, 2)
       fs.writeFileSync(path, data)
-      console.log(`Data written to: ${path}`);
+      console.log(`Data written to: ${path}`)
     }
   }
 
   if (persist) {
     // Final write mapMarkers to disk
-    const data = JSON.stringify(updatedMapMarkers, null, 2);
+    const data = JSON.stringify(updatedMapMarkers, null, 2)
     fs.writeFileSync(path, data)
-    console.log(`Final data written to: ${path}`);
+    console.log(`Final data written to: ${path}`)
   }
 
   return updatedMapMarkers
