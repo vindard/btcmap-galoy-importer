@@ -1,5 +1,6 @@
 import convert from "xml-js"
 import axios, { AxiosError, AxiosResponse } from "axios"
+import { COORD_PRECISION } from "../domain/osm"
 
 const CREATED_BY = "Galoy Exporter"
 
@@ -7,7 +8,6 @@ const CREATED_BY = "Galoy Exporter"
 // =====
 
 const NEARBY_NODES_RADIUS = 0.00025
-const COORD_PRECISION = 7
 
 const OSM_URL = "https://api.openstreetmap.org/api/0.6"
 // const OSM_URL = "https://master.apis.dev.openstreetmap.org/api/0.6"

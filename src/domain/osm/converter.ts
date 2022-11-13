@@ -1,4 +1,5 @@
 import convert from "xml-js"
+import { COORD_PRECISION } from "./constants"
 
 // Converter 'MarkerWithCompare' to OSM XML
 
@@ -31,8 +32,8 @@ export const OsmConverter = () => {
         id: node.id,
         version: node.version,
         changeset: node.changeset,
-        lat: `${node.lat}`,
-        lon: `${node.lon}`,
+        lat: node.lat.toFixed(COORD_PRECISION),
+        lon: node.lon.toFixed(COORD_PRECISION),
       },
       tag: Object.keys(tags).map((tag) => ({
         _attributes: { k: tag, v: tags[tag] },
