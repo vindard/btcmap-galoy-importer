@@ -245,7 +245,7 @@ const OpenStreetMap = async () => {
     const insideFilteredElems = filteredElements.filter((node: OsmRawNode) =>
       inside(node),
     )
-    // const outsideFilteredElems = filteredElements.filter((node: OsmNode) => !inside(node))
+    // const outsideFilteredElems = filteredElements.filter((node: OsmBtcMapNode) => !inside(node))
 
     return insideFilteredElems
   }

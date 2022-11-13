@@ -1,8 +1,8 @@
 type Marker = GaloyMapMarker & {
-  nearbyNodes: OsmNode[]
+  nearbyNodes: OsmBtcMapNode[]
 }
 
-type OsdNodeWithCompare = OsmNode & {
+type OsmNodeWithCompare = OsmRawNode & {
   compare: {
     score: number | undefined
     item: string
@@ -10,7 +10,7 @@ type OsdNodeWithCompare = OsmNode & {
 }
 
 type MarkerWithCompare = Omit<Marker, "nearbyNodes"> & {
-  matchedNearbyNodes: OsdNodeWithCompare[]
-  skippedNearbyNodes: OsdNodeWithCompare[]
+  matchedNearbyNodes: OsmNodeWithCompare[]
+  skippedNearbyNodes: OsmNodeWithCompare[]
   inconsistent?: true
 }

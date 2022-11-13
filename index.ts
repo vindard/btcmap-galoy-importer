@@ -7,6 +7,7 @@ import {
 } from "./src/fetch-and-process-galoy-nodes"
 import assignComparesToNearbyFromFile from "./src/process-fetched-galoy-and-osm-nodes"
 import OpenStreetMap from "./src/services/osm"
+import { OsmConverter } from "./src/domain/osm/converter"
 
 const osmDemo = async () => {
   // This function gives a simple demo of fetching an OSM node by its
@@ -21,6 +22,22 @@ const osmDemo = async () => {
   if (nearby instanceof Error) return nearby
 
   console.log(JSON.stringify(nearby, null, 2))
+}
+
+const converterDemo = (changeset: string) => {
+  const converter = OsmConverter()
+
+  const markersWithCompare = JSON.parse(
+    fs.readFileSync(".vscode/marker-and-nearby-with-compare.json", "utf8"),
+  )
+
+  // const xml = converter.markersToOsmModify({
+  const xml = converter.markersToOsmCreate({
+    markers: markersWithCompare,
+    meta: { user: "vindard", uid: "1234", changeset },
+  })
+
+  console.log(xml)
 }
 
 const main = async (demo: string) => {
@@ -68,6 +85,11 @@ const main = async (demo: string) => {
       await osm.closeChangeset(changesetId)
       break
 
+    case "converter":
+      changesetId = "128525647"
+      await converterDemo(changesetId)
+      break
+
     default:
       console.log("No valid demo selected")
   }
@@ -76,6 +98,7 @@ const main = async (demo: string) => {
 // main("osm");
 // main("assign-compares-demo")
 // main("nearby-markers-to-file");
-main("open-changeset")
+// main("open-changeset")
 // main("update-changeset");
 // main("close-changeset")
+main("converter")
