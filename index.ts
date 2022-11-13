@@ -34,7 +34,7 @@ const converterDemo = (changeset: string) => {
   // const xml = converter.markersToOsmModify({
   const xml = converter.markersToOsmCreate({
     markers: markersWithCompare,
-    meta: { user: "vindard", uid: "1234", changeset },
+    changeset,
   })
 
   console.log(xml)
@@ -77,16 +77,16 @@ const main = async (demo: string) => {
 
     case "update-changeset":
       body = fs.readFileSync("./.vscode/pana-change.xml", "utf8")
-      await osm.updateChangeset({ id: "128525647", body })
+      await osm.updateChangeset({ id: "128832056", body })
       break
 
     case "close-changeset":
-      changesetId = "128525647"
+      changesetId = "128832365"
       await osm.closeChangeset(changesetId)
       break
 
     case "converter":
-      changesetId = "128525647"
+      changesetId = "128832365"
       await converterDemo(changesetId)
       break
 
@@ -97,8 +97,8 @@ const main = async (demo: string) => {
 
 // main("osm");
 // main("assign-compares-demo")
-// main("nearby-markers-to-file");
+// main("nearby-markers-to-file")
 // main("open-changeset")
-// main("update-changeset");
+// main("update-changeset")
 // main("close-changeset")
 main("converter")

@@ -150,17 +150,13 @@ const expandObjToArray = (args: { [key: string]: string }) => {
 }
 
 const openChangesetXml = ({
-  user,
-  uid,
   comment,
   createdBy = CREATED_BY,
 }: {
-  user: string
-  uid: string
   comment: string
   createdBy?: string
 }) => {
-  const tag = expandObjToArray({ user, uid, comment, created_by: createdBy })
+  const tag = expandObjToArray({ comment, created_by: createdBy })
 
   const jsonForXml = JSON.stringify({
     osm: {
@@ -267,7 +263,7 @@ const OpenStreetMap = async () => {
 
     const resp = await safePutWithAuth({
       endpoint,
-      body: openChangesetXml({ ...args, user: username, uid }),
+      body: openChangesetXml({ ...args }),
     })
     if (resp instanceof Error) {
       handleAxiosError(resp)
