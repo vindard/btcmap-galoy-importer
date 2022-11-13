@@ -84,10 +84,17 @@ export const OsmConverter = () => {
 
     const { compare, ...node } = marker.matchedNearbyNodes[0]
 
+    const tagsToExclude = ["payment:bitcoin", "currency:BTC"]
+    let filteredTags: { [key: string]: string } = {}
+    for (const tag in node.tags) {
+      if (tagsToExclude.includes(tag)) continue
+      filteredTags[tag] = node.tags[tag]
+    }
+
     return {
       ...node,
       tags: {
-        ...node.tags,
+        ...filteredTags,
         ["name"]: marker.mapInfo.title,
         ["currency:XBT"]: "yes",
         ["payment:lightning"]: "yes",
