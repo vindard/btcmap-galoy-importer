@@ -29,11 +29,8 @@ export const OsmConverter = () => {
     return {
       _attributes: {
         id: node.id,
-        visible: node.visible,
         version: node.version,
         changeset: node.changeset,
-        user: node.user,
-        uid: node.uid,
         lat: `${node.lat}`,
         lon: `${node.lon}`,
       },
@@ -45,10 +42,10 @@ export const OsmConverter = () => {
 
   const noNearbyMarkerToOsmRawNode = ({
     marker,
-    meta: { changeset, user, uid },
+    changeset,
   }: {
     marker: MarkerWithCompare
-    meta: { changeset: string; user: string; uid: string }
+    changeset: string
   }): OsmNewNode | Error => {
     if (marker.matchedNearbyNodes && marker.matchedNearbyNodes.length > 0) {
       return new IncorrectMarkerForOsmModify()
@@ -56,12 +53,9 @@ export const OsmConverter = () => {
 
     return {
       type: "node",
-      id: "0",
-      visible: "true",
-      version: "0",
+      id: "-1",
+      version: "1",
       changeset,
-      user,
-      uid,
 
       tags: {
         ["name"]: marker.mapInfo.title,
@@ -78,10 +72,10 @@ export const OsmConverter = () => {
 
   const singleNearbyMarkerToOsmRawNode = ({
     marker,
-    meta: { changeset, user, uid },
+    changeset,
   }: {
     marker: MarkerWithCompare
-    meta: { changeset: string; user: string; uid: string }
+    changeset: string
   }): OsmBtcMapNode | Error => {
     if (marker.matchedNearbyNodes && marker.matchedNearbyNodes.length !== 1) {
       return new IncorrectMarkerForOsmModify()
@@ -104,17 +98,14 @@ export const OsmConverter = () => {
 
   const markerToOsmChangeNodeCreate = ({
     marker,
-    meta,
-  }: {
-    marker: MarkerWithCompare
-    meta: { changeset: string; user: string; uid: string }
-  }): OsmChangeNode | Error => {
+    changeset,
+  }: MarkerToOsmChangeArgs): OsmChangeNode | Error => {
     console.log("HERE 10:", marker.matchedNearbyNodes.length)
     if (marker.matchedNearbyNodes.length > 0) {
       return new ExistingMatchesFoundForNewNodeError()
     }
 
-    const osmNewNode = noNearbyMarkerToOsmRawNode({ marker, meta })
+    const osmNewNode = noNearbyMarkerToOsmRawNode({ marker, changeset })
     // console.log("HERE 11:", osmNewNode)
     if (osmNewNode instanceof Error) return osmNewNode
 
@@ -123,7 +114,7 @@ export const OsmConverter = () => {
 
   const markerToOsmChangeNodeModify = ({
     marker,
-    meta,
+    changeset,
   }: MarkerToOsmChangeArgs): OsmChangeNode | Error => {
     if (marker.matchedNearbyNodes.length === 0) {
       return new NoExistingMatchesFoundForModifyError()
@@ -132,7 +123,7 @@ export const OsmConverter = () => {
       return new MultipleMatchesForMarkerError()
     }
 
-    const osmNewNode = singleNearbyMarkerToOsmRawNode({ marker, meta })
+    const osmNewNode = singleNearbyMarkerToOsmRawNode({ marker, changeset })
     // console.log("HERE 11:", osmNewNode)
     if (osmNewNode instanceof Error) return osmNewNode
 
@@ -142,12 +133,12 @@ export const OsmConverter = () => {
   const markersToOsmChange = ({
     convertFn,
     markers,
-    meta,
+    changeset,
   }: MarkersToOsmChangeArgs & {
     convertFn: (args: MarkerToOsmChangeArgs) => OsmChangeNode | Error
   }): OsmChangeXml => {
     const nodes = markers
-      .map((marker) => convertFn({ marker, meta }))
+      .map((marker) => convertFn({ marker, changeset }))
       .filter((result) => !(result instanceof Error))
 
     console.log("HERE 0:", { markers: markers.length, nodes: nodes.length })
