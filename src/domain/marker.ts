@@ -20,7 +20,7 @@ export const addComparesToMarker = (marker: Marker): MarkerWithCompare => {
         ...nearbyNodes[i],
         compare: { score, item },
       }
-      if (score && score <= COMPARE_THRESHOLD) {
+      if (score !== undefined && score <= COMPARE_THRESHOLD) {
         updatedNearbyNodes.push(node)
       } else {
         skippedNearbyNodes.push(node)
