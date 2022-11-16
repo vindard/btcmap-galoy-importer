@@ -44,9 +44,11 @@ export const OsmConverter = () => {
   const noNearbyMarkerToOsmRawNode = ({
     marker,
     changeset,
+    id,
   }: {
     marker: MarkerWithCompare
     changeset: string
+    id: number
   }): OsmNewNode | Error => {
     if (marker.matchedNearbyNodes && marker.matchedNearbyNodes.length > 0) {
       return new IncorrectMarkerForOsmModify()
@@ -54,7 +56,7 @@ export const OsmConverter = () => {
 
     return {
       type: "node",
-      id: "-1",
+      id: `${id}`,
       version: "1",
       changeset,
 
@@ -64,6 +66,7 @@ export const OsmConverter = () => {
         ["payment:lightning"]: "yes",
         ["payment:onchain"]: "yes",
         ["bitcoin_bank:galoy:bitcoin_beach"]: "yes",
+        // ["survey:date"]: "2022-11-14",
       },
 
       lat: marker.mapInfo.coordinates.latitude,
@@ -107,14 +110,14 @@ export const OsmConverter = () => {
   const markerToOsmChangeNodeCreate = ({
     marker,
     changeset,
+    id,
   }: MarkerToOsmChangeArgs): OsmChangeNode | Error => {
     console.log("HERE 10:", marker.matchedNearbyNodes.length)
     if (marker.matchedNearbyNodes.length > 0) {
       return new ExistingMatchesFoundForNewNodeError()
     }
 
-    const osmNewNode = noNearbyMarkerToOsmRawNode({ marker, changeset })
-    // console.log("HERE 11:", osmNewNode)
+    const osmNewNode = noNearbyMarkerToOsmRawNode({ marker, changeset, id })
     if (osmNewNode instanceof Error) return osmNewNode
 
     return rawNodeToOsmChangeNode(osmNewNode)
@@ -145,8 +148,12 @@ export const OsmConverter = () => {
   }: MarkersToOsmChangeArgs & {
     convertFn: (args: MarkerToOsmChangeArgs) => OsmChangeNode | Error
   }): OsmChangeXml => {
+    let id = 0
     const nodes = markers
-      .map((marker) => convertFn({ marker, changeset }))
+      .map((marker) => {
+        id -= 1
+        return convertFn({ marker, changeset, id })
+      })
       .filter((result) => !(result instanceof Error))
 
     console.log("HERE 0:", { markers: markers.length, nodes: nodes.length })
