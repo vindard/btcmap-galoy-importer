@@ -112,8 +112,7 @@ export const OsmConverter = () => {
     changeset,
     id,
   }: MarkerToOsmChangeArgs): OsmChangeNode | Error => {
-    console.log("HERE 10:", marker.matchedNearbyNodes.length)
-    if (marker.matchedNearbyNodes.length > 0) {
+    if (marker.matchedNearbyNodes.length > 0 || marker.skippedNearbyNodes.length > 0) {
       return new ExistingMatchesFoundForNewNodeError()
     }
 
